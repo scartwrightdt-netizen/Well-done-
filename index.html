@@ -1,99 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>You're Awesome! — Day Translations</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --blue: #0056b3;
-    --yellow: #ffd700;
-    --green: #28a745;
-    --red: #dc3545;
-    --white: #ffffff;
-    --bg1: #07142b;
-    --bg2: #0d2a4a;
-  }
-  html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg1),var(--bg2));overflow:hidden;font-family:"Montserrat",sans-serif;}
-  canvas{position:fixed;left:0;top:0;pointer-events:none;display:block;}
-  #fireworksCanvas{z-index:1}
-  #sparksCanvas{z-index:3}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>You're Awesome!</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: radial-gradient(circle at center, #001f3f, #000);
+      font-family: 'Montserrat', sans-serif;
+      color: white;
+      text-align: center;
+    }
+    canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+    }
+    #main-message {
+      position: absolute;
+      top: 30%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 4rem;
+      font-weight: 900;
+      text-shadow: 0 0 20px gold, 0 0 40px orange;
+      animation: sparkle 2s infinite alternate;
+      z-index: 1;
+    }
+    @keyframes sparkle {
+      from { text-shadow: 0 0 10px gold, 0 0 20px red; color: gold; }
+      to { text-shadow: 0 0 40px yellow, 0 0 60px white; color: white; }
+    }
+    #tagline {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1.5rem;
+      white-space: nowrap;
+      border-right: 2px solid white;
+      overflow: hidden;
+      animation: typing 6s steps(60, end) forwards;
+      z-index: 1;
+    }
+    @keyframes typing {
+      from { width: 0 }
+      to { width: 100% }
+    }
+    .floating-word {
+      position: absolute;
+      font-size: 1.2rem;
+      font-weight: bold;
+      opacity: 0.8;
+      animation: float 10s linear infinite;
+    }
+    @keyframes float {
+      from { transform: translateY(100vh) rotate(0deg); opacity: 1; }
+      to { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="fireworks"></canvas>
+  <div id="main-message">You're Awesome!</div>
+  <div id="tagline">From all of us at Day Translations - thank you for helping us create something beautiful</div>
 
-  .center {
-    position:relative;
-    z-index:4;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    flex-direction:column;
-    gap:1.5rem;
-    width: min(1100px, 92vw);
-    padding: 40px;
-    margin:auto;
-    text-align:center;
-    pointer-events:none;
-  }
+  <!-- Fireworks audio -->
+  <audio id="fireworks-audio" autoplay loop>
+    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+  </audio>
 
-  .headline {
-    font-size: clamp(2rem,6vw,5.2rem);
-    font-weight:800;
-    color:var(--white);
-    pointer-events:auto;
-    user-select:none;
-  }
-  .spark-text {
-    background: linear-gradient(90deg,var(--yellow),#fff 50%, var(--red));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: flicker 1.8s ease-in-out infinite;
-  }
-  @keyframes flicker {
-    0%{filter:brightness(1);}
-    20%{filter:brightness(1.3);}
-    50%{filter:brightness(1.1);}
-    100%{filter:brightness(1);}
-  }
+  <script>
+    // Fireworks
+    const canvas = document.getElementById('fireworks');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    let particles = [];
 
-  /* typewriter tagline */
-  .tagline {
-    font-size: clamp(1rem,1.8vw,1.3rem);
-    font-weight:600;
-    color: var(--white);
-    border-right: 2px solid var(--yellow);
-    white-space: nowrap;
-    overflow: hidden;
-    width: 0;
-    animation: typing 6s steps(60,end) forwards, blink 1s step-end infinite;
-  }
-  @keyframes typing {
-    from { width: 0; }
-    to { width: 100%; }
-  }
-  @keyframes blink {
-    50% { border-color: transparent; }
-  }
+    function random(min, max) {
+      return Math.random() * (max - min) + min;
+    }
 
-  .logo {
-    width: 90px;
-    height: auto;
-    margin-top: 10px;
-  }
+    class Particle {
+      constructor(x, y, color) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        this.radius = 2;
+        this.angle = random(0, Math.PI * 2);
+        this.speed = random(1, 6);
+        this.friction = 0.95;
+        this.gravity = 0.98;
+        this.alpha = 1;
+        this.decay = random(0.01, 0.03);
+      }
+      update() {
+        this.speed *= this.friction;
+        this.x += Math.cos(this.angle) * this.speed;
+        this.y += Math.sin(this.angle) * this.speed + this.gravity;
+        this.alpha -= this.decay;
+      }
+      draw() {
+        ctx.save();
+        ctx.globalAlpha = this.alpha;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+        ctx.restore();
+      }
+    }
 
-  .fly-word {
-    position:fixed;
-    z-index:2;
-    font-weight:700;
-    will-change:transform,opacity;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-  }
+    function createFirework(x, y) {
+      const colors = ["#ff0000", "#0073e6", "#00cc44", "#ffcc00"]; // Day Translations colors
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      for (let i = 0; i < 100; i++) {
+        particles.push(new Particle(x, y, color));
+      }
+    }
 
-  .controls {
-    position: fixed;
-    right: 18px;
-    top: 18px;
-    z-index:6;
-    display:flex;
-    gap:8px;
-    background: rgba(0,0,0,0.28);
-    padd
+    function animate() {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      particles.forEach((p, i) => {
+        if (p.alpha <= 0) {
+          particles.splice(i, 1);
+        } else {
+          p.update();
+          p.draw();
+        }
+      });
+      requestAnimationFrame(animate);
+    }
+
+    setInterval(() => {
+      createFirework(random(0, canvas.width), random(0, canvas.height/2));
+    }, 1000);
+
+    animate();
+
+    // Floating multilingual words
+    const words = ["Bravo!", "¡Genial!", "Fantástico!", "Amazing!", "Incredible!", "Parabéns!", "素晴らしい!", "Félicitations!", "축하해요!", "Well Done!"];
+    function createWord() {
+      const word = document.createElement("div");
+      word.className = "floating-word";
+      word.textContent = words[Math.floor(Math.random() * words.length)];
+      word.style.left = Math.random() * window.innerWidth + "px";
+      word.style.color = ["#ff0000", "#0073e6", "#00cc44", "#ffcc00"][Math.floor(Math.random() * 4)];
+      document.body.appendChild(word);
+      setTimeout(() => word.remove(), 10000);
+    }
+    setInterval(createWord, 1200);
+  </script>
+</body>
+</html>
