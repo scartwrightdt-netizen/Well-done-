@@ -24,22 +24,25 @@
       top: 30%;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 4rem;
+      font-size: 6rem;
       font-weight: 900;
       text-shadow: 0 0 20px gold, 0 0 40px orange;
       animation: sparkle 2s infinite alternate;
       z-index: 1;
     }
     @keyframes sparkle {
-      from { text-shadow: 0 0 10px gold, 0 0 20px red; color: gold; }
-      to { text-shadow: 0 0 40px yellow, 0 0 60px white; color: white; }
+  0% { color: #ff0000; text-shadow: 0 0 20px #ff0000; }
+  25% { color: #0073e6; text-shadow: 0 0 20px #0073e6; }
+  50% { color: #00cc44; text-shadow: 0 0 20px #00cc44; }
+  75% { color: #ffcc00; text-shadow: 0 0 20px #ffcc00; }
+  100% { color: white; text-shadow: 0 0 40px white; }
     }
     #tagline {
       position: absolute;
       bottom: 40px;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 1.5rem;
+      font-size: 3rem;
       white-space: nowrap;
       border-right: 2px solid white;
       overflow: hidden;
@@ -52,10 +55,11 @@
     }
     .floating-word {
       position: absolute;
-      font-size: 1.2rem;
+      font-size: 2rem;
       font-weight: bold;
       opacity: 0.8;
       animation: float 10s linear infinite;
+      text-shadow: 0 0 10px white, 0 0 20px gold;
     }
     @keyframes float {
       from { transform: translateY(100vh) rotate(0deg); opacity: 1; }
@@ -70,7 +74,7 @@
 
   <!-- Fireworks audio -->
   <audio id="fireworks-audio" autoplay loop>
-    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    <source src="https://www.fesliyanstudios.com/play-mp3/387" type="audio/mpeg">
   </audio>
 
   <script>
@@ -90,7 +94,7 @@
         this.x = x;
         this.y = y;
         this.color = color;
-        this.radius = 2;
+        this.radius = 4;
         this.angle = random(0, Math.PI * 2);
         this.speed = random(1, 6);
         this.friction = 0.95;
@@ -118,7 +122,7 @@
     function createFirework(x, y) {
       const colors = ["#ff0000", "#0073e6", "#00cc44", "#ffcc00"]; // Day Translations colors
       const color = colors[Math.floor(Math.random() * colors.length)];
-      for (let i = 0; i < 100; i++) {
+      for (let i = 0; i < 1000; i++) {
         particles.push(new Particle(x, y, color));
       }
     }
@@ -139,12 +143,12 @@
 
     setInterval(() => {
       createFirework(random(0, canvas.width), random(0, canvas.height/2));
-    }, 1000);
+    }, 300);
 
     animate();
 
     // Floating multilingual words
-    const words = ["Bravo!", "¡Genial!", "Fantástico!", "Amazing!", "Incredible!", "Parabéns!", "素晴らしい!", "Félicitations!", "축하해요!", "Well Done!"];
+    const words = ["Браво!", "Bravo!", "¡Genial!", "Fantástico!", "Amazing!", "Incredible!", "Parabéns!", "素晴らしい!", "Félicitations!", "축하해요!", "Well Done!"];
     function createWord() {
       const word = document.createElement("div");
       word.className = "floating-word";
@@ -158,3 +162,4 @@
   </script>
 </body>
 </html>
+
